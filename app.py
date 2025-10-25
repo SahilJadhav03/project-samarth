@@ -232,8 +232,9 @@ def main():
     
     st.markdown("---")
     
-    # Sample questions
-    st.markdown("### 📝 Sample Questions (Try asking multiple!)")
+    # Sample questions as clickable buttons
+    st.markdown("### 📝 Sample Questions")
+    st.markdown("*Click any question below to auto-fill it in the chat box:*")
     
     sample_questions = [
         "Compare the average annual rainfall in Punjab and Haryana for the last 5 available years. In parallel, list the top 3 most produced crops in each of those states during the same period.",
@@ -245,9 +246,15 @@ def main():
         "How does rainfall in Maharashtra correlate with Cotton production?"
     ]
     
-    # Display all sample questions in a list
+    # Display sample questions as clickable expanders
     for idx, question in enumerate(sample_questions, 1):
-        st.markdown(f"**Q{idx}.** {question}")
+        col1, col2 = st.columns([0.95, 0.05])
+        with col1:
+            if st.button(f"Q{idx}. {question[:80]}{'...' if len(question) > 80 else ''}", key=f"sample_{idx}", use_container_width=True):
+                st.session_state.input_value = question
+                st.rerun()
+        with col2:
+            st.markdown("🔽" if len(question) > 80 else "")
     
     st.markdown("---")
     
@@ -269,19 +276,22 @@ def main():
     else:
         # Friendly welcome message
         st.markdown("### 👋 Welcome to Project Samarth!")
-        st.info("""
-        Hi there! I'm here to help you explore India's agricultural and climate data from data.gov.in.
-        
-        **How I can assist you:**
-        - 🌾 Compare crop production across states and districts
-        - 🌧️ Analyze rainfall patterns and trends
-        - 📊 Understand correlations between weather and agriculture
-        - 📋 Generate data-backed policy recommendations
-        
-        **Get started:** Type your question below, or click a sample question above to try it out!
-        """)
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); padding: 25px; border-radius: 10px; border-left: 5px solid #4CAF50;'>
+            <h4 style='color: #2E7D32; margin-top: 0;'>Hi there! I'm here to help you explore India's agricultural and climate data from data.gov.in. 👋</h4>
+            <p style='color: #1B5E20; margin-bottom: 15px;'><strong>How I can assist you:</strong></p>
+            <ul style='color: #2E7D32;'>
+                <li>🌾 <strong>Compare crop production</strong> across states and districts</li>
+                <li>🌧️ <strong>Analyze rainfall patterns</strong> and trends over time</li>
+                <li>📊 <strong>Understand correlations</strong> between weather and agriculture</li>
+                <li>📋 <strong>Generate data-backed policy recommendations</strong></li>
+            </ul>
+            <p style='color: #1B5E20; margin-bottom: 0;'><strong>✨ Get started:</strong> Click any sample question above, or type your own question below!</p>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("")  # Add spacing
     
-    # Query input
+    # Query input section
     st.markdown("### 💬 Ask Your Question")
     
     # Initialize input value in session state
@@ -289,11 +299,11 @@ def main():
         st.session_state.input_value = ''
     
     query = st.text_area(
-        "Enter your question about agricultural and climate data:",
+        "Type your question here, or click a sample question above to get started:",
         value=st.session_state.input_value,
         height=100,
         key="query_input",
-        placeholder="E.g., Compare rainfall in Punjab and Haryana over the last 5 years..."
+        placeholder="💡 Example: Compare rainfall in Punjab and Haryana over the last 5 years, and show top 3 crops..."
     )
     
     col1, col2 = st.columns([3, 1])
@@ -319,13 +329,13 @@ def main():
                 # Add a friendly greeting for first question
                 greeting = ""
                 if st.session_state.query_count == 1:
-                    greeting = "Hi! I'd love to help you with that. Let me analyze the data...\n\n"
+                    greeting = "**Hi! I'd love to help you with that.** 😊 Let me analyze the data for you...\n\n---\n\n"
                 
                 # Process query
                 response, result = process_query(query, router, processor, crop_df, rainfall_df)
                 
                 # Add friendly tone to response
-                friendly_response = greeting + response + "\n\n*Is there anything else you'd like to know? Feel free to ask more questions!* 😊"
+                friendly_response = greeting + response + "\n\n---\n\n*Hope this helps! Feel free to ask more questions anytime.* �"
                 
                 # Add assistant response to chat
                 st.session_state.messages.append({
