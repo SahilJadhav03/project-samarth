@@ -163,7 +163,12 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        st.image("https://via.placeholder.com/300x100/2E7D32/FFFFFF?text=Project+Samarth", width="stretch")
+        st.markdown("""
+        <div style='background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%); padding: 30px; border-radius: 10px; text-align: center; margin-bottom: 20px;'>
+            <h1 style='color: white; margin: 0; font-size: 2rem;'>🌾 Samarth</h1>
+            <p style='color: #E8F5E9; margin: 5px 0 0 0; font-size: 0.9rem;'>Agricultural Intelligence</p>
+        </div>
+        """, unsafe_allow_html=True)
         
         st.markdown("---")
         st.markdown("### About")
@@ -261,6 +266,20 @@ def main():
                             st.json(msg.get('raw_data', {}))
         
         st.markdown("---")
+    else:
+        # Friendly welcome message
+        st.markdown("### 👋 Welcome to Project Samarth!")
+        st.info("""
+        Hi there! I'm here to help you explore India's agricultural and climate data from data.gov.in.
+        
+        **How I can assist you:**
+        - 🌾 Compare crop production across states and districts
+        - 🌧️ Analyze rainfall patterns and trends
+        - 📊 Understand correlations between weather and agriculture
+        - 📋 Generate data-backed policy recommendations
+        
+        **Get started:** Type your question below, or click a sample question above to try it out!
+        """)
     
     # Query input
     st.markdown("### 💬 Ask Your Question")
@@ -268,10 +287,6 @@ def main():
     # Initialize input value in session state
     if 'input_value' not in st.session_state:
         st.session_state.input_value = ''
-    
-    # Check if a sample question was clicked
-    if 'current_question' in st.session_state:
-        st.session_state.input_value = st.session_state.pop('current_question')
     
     query = st.text_area(
         "Enter your question about agricultural and climate data:",
@@ -288,62 +303,70 @@ def main():
         show_raw = st.checkbox("Show Raw Data", value=False)
     
     # Process button
-    if submit_button:
-        if query:
-            with st.spinner("🤔 Processing your query..."):
-                try:
-                    # Increment query count
-                    st.session_state.query_count += 1
-                    
-                    # Add user message to chat
-                    st.session_state.messages.append({
-                        "role": "user",
-                        "content": query,
-                        "number": st.session_state.query_count
-                    })
-                    
-                    # Process query
-                    response, result = process_query(query, router, processor, crop_df, rainfall_df)
-                    
-                    # Add assistant response to chat
-                    st.session_state.messages.append({
-                        "role": "assistant",
-                        "content": response,
-                        "raw_data": result,
-                        "show_raw": show_raw
-                    })
-                    
-                    # Success message
-                    st.success(f"✅ Question {st.session_state.query_count} answered! All data points are cited with sources.")
-                    
-                    # Clear the input box for next question
-                    st.session_state.input_value = ''
-                    
-                    # Rerun to update chat display and clear input
-                    st.rerun()
-                    
-                except Exception as e:
-                    st.error(f"❌ Error processing query: {str(e)}")
-                    logger.error(f"Error: {e}", exc_info=True)
-        else:
-            st.warning("⚠️ Please enter a question to analyze.")
+    if submit_button and query:
+        with st.spinner("🤔 Let me find that information for you..."):
+            try:
+                # Increment query count
+                st.session_state.query_count += 1
+                
+                # Add user message to chat
+                st.session_state.messages.append({
+                    "role": "user",
+                    "content": query,
+                    "number": st.session_state.query_count
+                })
+                
+                # Add a friendly greeting for first question
+                greeting = ""
+                if st.session_state.query_count == 1:
+                    greeting = "Hi! I'd love to help you with that. Let me analyze the data...\n\n"
+                
+                # Process query
+                response, result = process_query(query, router, processor, crop_df, rainfall_df)
+                
+                # Add friendly tone to response
+                friendly_response = greeting + response + "\n\n*Is there anything else you'd like to know? Feel free to ask more questions!* 😊"
+                
+                # Add assistant response to chat
+                st.session_state.messages.append({
+                    "role": "assistant",
+                    "content": friendly_response,
+                    "raw_data": result,
+                    "show_raw": show_raw
+                })
+                
+                # Success message
+                st.success(f"✅ Got it! Question {st.session_state.query_count} answered with citations. What would you like to explore next?")
+                
+                # Clear the input box for next question
+                st.session_state.input_value = ''
+                
+                # Rerun to update chat display and clear input
+                st.rerun()
+                
+            except Exception as e:
+                st.error(f"❌ Oops! I encountered an error: {str(e)}. Could you try rephrasing your question?")
+                logger.error(f"Error: {e}", exc_info=True)
+    elif submit_button:
+        st.warning("⚠️ Please enter a question so I can help you analyze the data.")
     
-    # Quick actions
+    # Quick actions - only show after first question
     if st.session_state.messages:
         st.markdown("---")
         st.markdown("### 🎯 Quick Actions")
+        st.markdown("*Click a button to auto-fill a question:*")
         col1, col2, col3 = st.columns(3)
         with col1:
-            if st.button("📊 Ask About Different State"):
-                st.session_state.current_question = "Compare crop production in Tamil Nadu and Kerala"
+            if st.button("📊 Ask About Different State", key="quick_state"):
+                st.session_state.input_value = "Compare crop production in Tamil Nadu and Kerala"
                 st.rerun()
         with col2:
-            if st.button("🌧️ Ask About Rainfall"):
-                st.session_state.current_question = "What is the rainfall trend in Rajasthan over the last 5 years?"
+            if st.button("🌧️ Ask About Rainfall", key="quick_rain"):
+                st.session_state.input_value = "What is the rainfall trend in Rajasthan over the last 5 years?"
                 st.rerun()
         with col3:
-            if st.button("📈 Ask About Trends"):
-                st.session_state.current_question = "Show me production trends for Cotton in Gujarat"
+            if st.button("📈 Ask About Trends", key="quick_trend"):
+                st.session_state.input_value = "Show me production trends for Cotton in Gujarat"
                 st.rerun()
     
     # Footer
