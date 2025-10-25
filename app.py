@@ -246,12 +246,12 @@ def main():
         "How does rainfall in Maharashtra correlate with Cotton production?"
     ]
     
-    # Display sample questions as clickable expanders
+    # Display sample questions as clickable buttons
     for idx, question in enumerate(sample_questions, 1):
         col1, col2 = st.columns([0.95, 0.05])
         with col1:
             if st.button(f"Q{idx}. {question[:80]}{'...' if len(question) > 80 else ''}", key=f"sample_{idx}", use_container_width=True):
-                st.session_state.input_value = question
+                st.session_state.query_input = question
                 st.rerun()
         with col2:
             st.markdown("🔽" if len(question) > 80 else "")
@@ -294,13 +294,8 @@ def main():
     # Query input section
     st.markdown("### 💬 Ask Your Question")
     
-    # Initialize input value in session state
-    if 'input_value' not in st.session_state:
-        st.session_state.input_value = ''
-    
     query = st.text_area(
         "Type your question here, or click a sample question above to get started:",
-        value=st.session_state.input_value,
         height=100,
         key="query_input",
         placeholder="💡 Example: Compare rainfall in Punjab and Haryana over the last 5 years, and show top 3 crops..."
@@ -348,9 +343,6 @@ def main():
                 # Success message
                 st.success(f"✅ Got it! Question {st.session_state.query_count} answered with citations. What would you like to explore next?")
                 
-                # Clear the input box for next question
-                st.session_state.input_value = ''
-                
                 # Rerun to update chat display and clear input
                 st.rerun()
                 
@@ -368,15 +360,15 @@ def main():
         col1, col2, col3 = st.columns(3)
         with col1:
             if st.button("📊 Ask About Different State", key="quick_state"):
-                st.session_state.input_value = "Compare crop production in Tamil Nadu and Kerala"
+                st.session_state.query_input = "Compare crop production in Tamil Nadu and Kerala"
                 st.rerun()
         with col2:
             if st.button("🌧️ Ask About Rainfall", key="quick_rain"):
-                st.session_state.input_value = "What is the rainfall trend in Rajasthan over the last 5 years?"
+                st.session_state.query_input = "What is the rainfall trend in Rajasthan over the last 5 years?"
                 st.rerun()
         with col3:
             if st.button("📈 Ask About Trends", key="quick_trend"):
-                st.session_state.input_value = "Show me production trends for Cotton in Gujarat"
+                st.session_state.query_input = "Show me production trends for Cotton in Gujarat"
                 st.rerun()
     
     # Footer
