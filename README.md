@@ -2,6 +2,12 @@
 
 ## Intelligent Q&A System for Agricultural & Climate Data
 
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Data.gov.in](https://img.shields.io/badge/Data-data.gov.in-00A36C?style=for-the-badge)](https://data.gov.in/)
+
+🔗 **[Live Demo](https://project-samarth.streamlit.app/)** | 📹 **[Video Demo](#)** | 📊 **[GitHub](https://github.com/SahilJadhav03/project-samarth)**
+
 An end-to-end prototype that queries **data.gov.in** to answer complex, natural language questions about India's agricultural economy and climate patterns.
 
 ---
