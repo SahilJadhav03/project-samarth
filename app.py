@@ -298,18 +298,24 @@ def main():
     # Query input section
     st.markdown("### 💬 Ask Your Question")
     
-    # Use selected_question as default value, then clear it
-    default_value = st.session_state.selected_question
-    if default_value:
+    # Initialize query_text in session state if not exists
+    if 'query_text' not in st.session_state:
+        st.session_state.query_text = ''
+    
+    # If a sample question was selected, update query_text
+    if st.session_state.selected_question:
+        st.session_state.query_text = st.session_state.selected_question
         st.session_state.selected_question = ''
     
     query = st.text_area(
         "Type your question here, or click a sample question above to get started:",
-        value=default_value,
+        value=st.session_state.query_text,
         height=100,
-        key="query_input",
         placeholder="💡 Example: Compare rainfall in Punjab and Haryana over the last 5 years, and show top 3 crops..."
     )
+    
+    # Update session state with current query value
+    st.session_state.query_text = query
     
     col1, col2 = st.columns([3, 1])
     with col1:
@@ -352,6 +358,9 @@ def main():
                 
                 # Success message
                 st.success(f"✅ Got it! Question {st.session_state.query_count} answered with citations. What would you like to explore next?")
+                
+                # Clear the input for next question
+                st.session_state.query_text = ''
                 
                 # Rerun to update chat display and clear input
                 st.rerun()
